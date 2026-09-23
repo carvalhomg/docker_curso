@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+  <Resource name="jdbc/aghos"
+            global="jdbc/aghos"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="oracle.jdbc.driver.OracleDriver"
+            url="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=IPDOBANCO)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=PDBHS19)))"
+            username="NOMEDOSCHEMA"
+            password="SENHA"
+            maxActive="100"
+            maxIdle="20"
+            minIdle="5"
+            maxWait="10000"
+            oracle.jdbc.mapDateToTimestamp="false"
+  />
+
+  <Resource name="jdbc/cnes"
+            global="jdbc/cnes"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="org.firebirdsql.jdbc.FBDriver"
+            url="jdbc:firebirdsql://IPDOBANCO:3050//home/IMPORTACAO_CNES/NOMEDOSCEMA/CNES.GDB?charSet=UTF8"
+            username="sysdba"
+            password="masterkey"
+            maxActive="100"
+            maxIdle="20"
+            minIdle="5"
+            maxWait="10000"
+  />
+
+</Context>

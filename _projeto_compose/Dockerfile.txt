@@ -1,0 +1,44 @@
+FROM centos:7
+
+# 1. Corrigir repositório
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
+
+# 2. Instalar JAVA 8 e ferramentas - ferramentas direto do repositório!
+RUN yum install -y java-1.8.0-openjdk-devel wget ca-certificates && \
+    yum clean all
+
+# 3. O JAVA já vem no caminho padrão 
+#COPY jdk8 /usr/local/jdk
+#RUN ln -s /usr/local/jdk/jre/bin /usr/local/jdk/bin 
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+ENV PATH=${JAVA_HOME}/bin:${PATH}
+
+# Confirmar 
+RUN java -version
+
+# 4. TOMCAT pasta local
+ENV CATALINA_HOME=/usr/local/tomcat
+COPY apache-tomcat-7.0.47 /usr/local/tomcat
+
+# CRIAR pastas essenciais e dar permissão total
+RUN chmod +x /usr/local/tomcat/bin/*.sh && \
+    mkdir -p /usr/local/tomcat/temp /usr/local/tomcat/webapps /usr/local/tomcat/work && \
+    chmod -R 755 /usr/local/tomcat && \
+    chown -R root:root /usr/local/tomcat
+
+# Garantir permissão de escrita na pasta webapps
+RUN chmod -R 755 /usr/local/tomcat/webapps && \
+    chown -R root:root /usr/local/tomcat/webapps || true
+
+# ✅ DEFINIR MEMÓRIA DIRETO NO ARQUIVO DO TOMCATT ARQUIO SETENV
+RUN echo 'export JAVA_OPTS="-Xms512m -Xmx1024m"' > /usr/local/tomcat/bin/setenv.sh && \
+    chmod +x /usr/local/tomcat/bin/setenv.sh
+
+# Limpar exemplos
+RUN rm -rf /usr/local/tomcat/webapps/ROOT /usr/local/tomcat/webapps/docs /usr/local/tomcat/webapps/examples 2>/dev/null || true
+
+EXPOSE 8080
+WORKDIR /usr/local/tomcat
+
+CMD ["/usr/local/tomcat/bin/catalina.sh", "run"]
