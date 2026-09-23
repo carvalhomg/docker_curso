@@ -1,0 +1,48 @@
+services:
+  tomcat-a: &tomcat-template
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - JAVA_OPTS="-Xms256m -Xmx512m"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2024M
+    volumes:
+      # Suas aplicações WAR
+      - ./apps-a:/usr/local/tomcat/webapps
+      # Arquivos de contexto (banco de dados) ← NOVO
+      - ./context-config:/usr/local/tomcat/conf/Catalina/localhost:ro
+      # Logs
+      - ./logs-a:/usr/local/tomcat/logs
+    networks:
+      - tomcat_network
+      # Leitura e Escrita  - sem :ro
+      #- ./apps:/usr/local/tomcat/webapps  # ✅ Leitura e ESCRITA — sem :ro
+      #- ./context-config:/usr/local/tomcat/conf/Catalina/localhost:ro  # ✅ Somente leitura = seguroo
+
+   # healthcheck:
+    #  test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+     # interval: 15s
+     # timeout: 10s
+     # retries: 3
+     # start_period: 40s
+
+  tomcat-b:
+    <<: *tomcat-template
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./apps-b:/usr/local/tomcat/webapps
+      - ./context-config:/usr/local/tomcat/conf/Catalina/localhost:ro
+      - ./logs-b:/usr/local/tomcat/logs
+
+    networks:
+      - tomcat_network
+
+networks:
+  tomcat_network:
+    driver: bridge
